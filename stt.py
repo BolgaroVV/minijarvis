@@ -1,6 +1,5 @@
 import json
 import queue
-import sys
 import sounddevice as sd
 import threading
 import time
@@ -30,7 +29,7 @@ class STT:
             while self._running:
                 data = self.__Q__.get()
                 if self.__REC__.AcceptWaveform(data):
-                    text = json.loads(self.__REC__.PartialResult())["partial"]
+                    text = json.loads(self.__REC__.Result())["text"]
                     print(text)
                     if executor:
                         executor(text)
@@ -47,9 +46,9 @@ class STT:
     def stop(self):
         self._running = False
 
-stt = STT()
-stt.start()
+# stt = STT()
+# stt.start()
 
-while True:
-    print('working')
-    time.sleep(1)
+# while True:
+#     print('working')
+#     time.sleep(1)
