@@ -118,6 +118,8 @@ class MusicControls():
 
     def search_track(self):
         return container.client.search(text='blod tear', type_='track', nocorrect=False)
+    
+music_controls = MusicControls()
 
 
 
