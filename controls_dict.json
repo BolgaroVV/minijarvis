@@ -1,0 +1,71 @@
+{
+  "следующий": {
+    "function": "play_next_track",
+    "description": "Переключить на следующий трек в очереди воспроизведения"
+  },
+
+  "назад": {
+    "function": "play_previous_track",
+    "description": "Вернуться к предыдущему треку"
+  },
+
+  "пауза": {
+    "function": "pause_player",
+    "description": "Поставить воспроизведение на паузу"
+  },
+
+  "продолжить": {
+    "function": "resume_player",
+    "description": "Продолжить воспроизведение после паузы"
+  },
+
+  "старт": {
+    "function": "start_player",
+    "description": "Запустить воспроизведение (по умолчанию запускает чарты)"
+  },
+
+  "нравится трек": {
+    "function": "like_current_track",
+    "description": "Поставить лайк текущему треку"
+  },
+
+  "убрать лайк трек": {
+    "function": "unlike_current_track",
+    "description": "Убрать лайк с текущего трека"
+  },
+
+  "не нравится трек": {
+    "function": "dislike_current_track",
+    "description": "Поставить дизлайк текущему треку"
+  },
+
+  "убрать дизлайк": {
+    "function": "undislike_current_track",
+    "description": "Убрать дизлайк с текущего трека"
+  },
+
+  "нравится альбом": {
+    "function": "like_current_album",
+    "description": "Поставить лайк альбому текущего трека"
+  },
+
+  "убрать лайк альбом": {
+    "function": "unlike_current_album",
+    "description": "Убрать лайк с альбома текущего трека"
+  },
+
+  "нравится артист": {
+    "function": "like_current_artist",
+    "description": "Поставить лайк всем артистам текущего трека"
+  },
+
+  "убрать лайк артист": {
+    "function": "unlike_current_artist",
+    "description": "Убрать лайк у артистов текущего трека"
+  },
+
+  "проверка": {
+    "function": "test",
+    "description": "Тестовая команда для проверки работы системы команд"
+  }
+}
