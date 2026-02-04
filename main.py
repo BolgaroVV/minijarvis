@@ -1,17 +1,17 @@
-import json
-from stt import sst_recorder
-from ai import response_to_ai
-from tts import createVoice, tts_function
+from services import container
+import time
+from ai import call_function_by_ai
 
-voice = createVoice()
-
-sst_result = sst_recorder()
-print(sst_result)
-json_sst_result = json.loads(sst_result)['text']
-print(json_sst_result)
-ai_result = response_to_ai(json_sst_result)
-print(ai_result)
-# tts_function(ai_result, voice)
-# wav_player()
+def main():
+    # container.client.init()
+    container.stt.start() 
+    container.stt.listen(call_function_by_ai)
 
 
+
+if __name__ == '__main__':
+    main()
+    while True:
+        time.sleep(1)
+    
+    

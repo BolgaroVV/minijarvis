@@ -1,54 +1,72 @@
 import json
-import queue
 import sounddevice as sd
-import threading
-import time
+import multiprocessing as mp
+import queue
 
 from vosk import Model, KaldiRecognizer
 
+
+def stt_process(modelpath, samplerate, audio_q, text_q, stop_event):
+    model = Model(modelpath)
+    rec = KaldiRecognizer(model, samplerate)
+
+    def q_callback(indata, _, __, status):
+        if not stop_event.is_set():
+            audio_q.put(bytes(indata))
+
+    with sd.RawInputStream(
+        samplerate=samplerate,
+        blocksize=8000,
+        device=1,
+        dtype="int16",
+        channels=1,
+        callback=q_callback,
+    ):
+        while not stop_event.is_set():
+            try:
+                data = audio_q.get(timeout=0.1)
+            except queue.Empty:
+                continue
+
+            if rec.AcceptWaveform(data):
+                text = json.loads(rec.Result())["text"]
+                text_q.put(text)
+
 class STT:
     def __init__(self, modelpath: str = "model", samplerate: int = 16000):
-        self.model = Model(modelpath)
-        self.__REC__ = KaldiRecognizer(self.model, samplerate)
-        self.__Q__ = queue.Queue()
-        self.__SAMPLERATE__ = samplerate
-        self._running = True
-    
-    def q_callback(self, indata, _, __, status):
-        self.__Q__.put(bytes(indata))
+        self.modelpath = modelpath
+        self.samplerate = samplerate
+
+        self.audio_q = mp.Queue()
+        self.text_q = mp.Queue()
+        self.stop_event = mp.Event()
+
+        self.process = mp.Process(
+            target=stt_process,
+            args=(
+                self.modelpath,
+                self.samplerate,
+                self.audio_q,
+                self.text_q,
+                self.stop_event,
+            ),
+            daemon=True,
+        )
+
+    def start(self):
+        self.process.start()
 
     def listen(self, executor: callable = None):
-        with sd.RawInputStream(
-                samplerate=self.__SAMPLERATE__, 
-                blocksize=8000, 
-                device=1, 
-                dtype='int16',
-                channels=1, 
-                callback=self.q_callback
-            ):
-            while self._running:
-                data = self.__Q__.get()
-                if self.__REC__.AcceptWaveform(data):
-                    text = json.loads(self.__REC__.Result())["text"]
-                    print(text)
-                    if executor:
-                        executor(text)
-                # else:
-                #     text = json.loads(self.__REC__.PartialResult())["partial"] - возможно полезно для wakewords и всяких ключевых
-
-    def start(self, executor: callable = None):
-        threading.Thread(
-            target=self.listen,
-            args=(executor,),
-            daemon=True
-        ).start()
+        try:
+            while True:
+                text = self.text_q.get()
+                print(text)
+                if executor:
+                    executor(text)
+        except KeyboardInterrupt:
+            self.stop()
 
     def stop(self):
-        self._running = False
-
-# stt = STT()
-# stt.start()
-
-# while True:
-#     print('working')
-#     time.sleep(1)
+        self.stop_event.set()
+        if self.process.is_alive():
+            self.process.join()
